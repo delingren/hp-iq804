@@ -95,8 +95,7 @@ It'd be nice to be able to control the volume of the audio output. Apple devices
   <img src="IMG_0130.jpeg" width="400">
 
 * The other two pins output irregular square waves. I suspected they were PDM encoded, as it’s a common format (along with I2S). To verify this, I need to produce a 2 MHz clock signal, hook up a low pass filter on the data pin, and inspect the output. 
-* To generate the clock signal, I used PIO on RP2040 and made a small change to [this example]
-(https://github.com/raspberrypi/pico-examples/tree/master/pio/squarewave). Then I connected an earphone. I also didn't use a low pass filter (rather, the earphone is the filter). But the Speakers definitely resembles the input.
+* To generate the clock signal, I used PIO on RP2040 and made a small change to [this example](https://github.com/raspberrypi/pico-examples/tree/master/pio/squarewave). Then I connected an earphone. I also didn't use a low pass filter (rather, the earphone is the filter). But the Speakers definitely resembles the input.
 * To interface the mics with the computer, I use a RP2040 as a soundcard. And I found [this project](https://www.hackster.io/sandeep-mistry/create-a-usb-microphone-with-the-raspberry-pi-pico-cc9bd5) that basically does what I need. 
 * TODO: either make it stereo or average the two inputs. Someone has tried a [mic array](https://github.com/CaydenPierce/MSA). However, the result is too noisy. Not sure what's happening.
 * References:
