@@ -64,7 +64,7 @@ Components to be removed or ignored:
     |Orange |3.3v	     |Red    |GND (wtf?)|
 
 * See some discussion on this [reddit thread](https://www.reddit.com/r/AskElectronics/comments/1d7cm2i/comment/l71as52/?context=3).
-* To reuse the amps, I cut the wires and soldered one half to 2.5mm headers. Then I plugged them to a perf board and  provide 5v, 3.3v, and audio signal.
+* To reuse the amps, I cut the wires and soldered one half to 2.5mm headers. Then I plugged them to a perf board and provide 5v, 3.3v, and audio signal.
 * I took measurements of the current on both 5v and 3.3v. The 3.3v line has a constant current of ~60 μA, apparently not used for driving the speakers.
 * The 5v line tops at 60mA when the volume is maxed out, although the nominal wattage of the speakers is 4W (800 mA).
 * It was speculated that the 3.3v pin is used for controlling the volume. However, after inspecting it with an oscilloscope, it didn’t seem to be the case. The waveform is a straight-line no matter how I adjust the volume. Instead, the amplitude of the signal changes. So I’m not sure what it is used for. But without it, the amps don’t work. It might be an enable pin?
@@ -84,6 +84,10 @@ The original power switch on this machine is a pushbutton that shorts two pins o
 
 ## Volume Control
 It'd be nice to be able to control the volume of the audio output. Apple devices don't support CEC, so they don't control the volume of the audio stream in the HDMI output signal. There're software solutions (e.g. [SoundSource](https://rogueamoeba.com/soundsource/)). But it'd be nice to be able to do it universally. The machine comes with three volume control buttons (up, down, and mute). After doing some research, I found this IC [MAX5486](https://www.analog.com/media/en/technical-documentation/data-sheets/MAX5486.pdf) that might fit the bill. So I ordered a couple and some TSSOP24 to 2.5mm pinhead adpater. Soldering those pins will be a challenge!
+
+And on the volumn control buttons... They are mounted on a small PCB board, along with an LED for HDD. Remember those HDD activity indicators back in the days? They were on every computer, including laptops! I doubt anyone ever found them useful. Anyway, the PCB iss connected to the motherboard with a 6 pin connector. I thought it'd be easy to wire up. I thought each button would just short two pins (or a pin to the ground). However, after some poking around, it appeared that there's some resistors and capacitors on the board, probably for debouncing. What's really strange is that only the vol+ button shorts a pin to the ground. The other two have a 20K ohm resistance to the ground when open and 10K when closed. Not sure what the deal is. The HDD LED is somewhat controlled by a BJT on board and requires a +5V power.
+
+Instead of tweaking the circuit, I decided to rewire it such that all three buttons simply short a pin to the ground. MAX5486 does its own debouncing. I also removed the LED and replaced it with my own. I am planning to use it to indicate the mute state. MAX5486 supports indicating the sound level with 4 LEDs. When muted, all LEDs are off. So I just need to wire my LED to the pin for the lowest level, but reverse the logic (i.e. wire the LED between Vcc and the pin, instead of the pin and ground).
 
 ## Microphones
 * The machine comes with 2 microphones. One left and one right. They are directly connected to the motherboard via a 5 pin connector. Physically, they share the same PCB board as the webcam.
