@@ -58,8 +58,8 @@ Components to be removed or ignored:
     | Color | Function | Color | Function |
     |-------|----------|-------|----------|
     |Yellow |5v	       |Orange |5v        |
-    |Grey   |Left      |White  |Right     |
-    |Black  |GND       |Black  |GND       |
+    |Grey   |L+        |White  |R+        |
+    |Black  |L-        |Black  |R-        |
     |Brown  |GND       |Black  |GND       |
     |Orange |3.3v	     |Red    |GND (wtf?)|
 

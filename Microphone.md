@@ -1,4 +1,5 @@
 # Microphone
+
 ## Identification
 The mics physically share the same PCB as the camera. The PCB has two clusters of wires coming out. One for the camera and one for the mics. The clusters have labels. The camera cluster has 4 wires: black, red, green, and white. They are connected to some pin headers on the motherboard. It looks like a USB connection to me. So I soldered the wires to a USB-A plug and plugged it into a laptop and it worked fine.
 
@@ -20,6 +21,18 @@ Interface Descriptors
 Endpoint Descriptors
 Isochronous Transfer
 
+## Sampling both channels
+In the hackster blog post aforementioned, the author Sandeep uses Pico's PIO to generate the clock signal at 1.024 MHz and sample the data pin once per clock cycle, or 16 times per milliesecond (16,000 kHz), then uses a soft PDM filter to down sample, filter, and produce 16 amplitude values, each a 16 bit signed integer. To do this for 2 mics, I
+
+* Read 2 bits from two *consecutive* pins on a PIO statemachine.
+* Changed PDM filter logic to separate left and right signals.
+* Change PDM filter logic to filter both signals. The filter is stateful and you can't call the filter function on both signals alternatively.
+* Generate output for both channels. The 16-bit signed integer values representing the amplitude are alternating. I.e. one value for the left followed by one value for the right and repeat.
+
+Code:
+https://github.com/delingren/mems-mic/tree/stereo_no_encoding
+
 References:
+https://github.com/hathach/tinyusb/blob/master/examples/device/audio_4_channel_mic/src/usb_descriptors.c
 https://www.beyondlogic.org/usbnutshell/usb5.shtml
 https://www.silabs.com/documents/public/application-notes/AN295.pdf
