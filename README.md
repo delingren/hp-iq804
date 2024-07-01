@@ -77,7 +77,27 @@ The video controller uses 12-15 Volt DC. So I can't feed it the input directly. 
 
 TODO: measure actual current of these devices using a USB power meter.
 
-## Power switch
+5V DC:
+* Volume control module. (which also powers the amps)
+* USB Hub
+* Microphone MCU
+* Ambient light LED
+
+12V DC:
+* Video controller
+* System fan
+
+### DC regulators
+D36V28F5 https://www.pololu.com/product/3782
+D36V28F12 https://www.pololu.com/product/3786
+
+### Power switch
+https://www.pololu.com/product/2812
+
+### Indicator LEDs
+* Yellow
+* Green
+
 The original power switch on this machine is a pushbutton that shorts two pins on the motherboard to turn on the machine. The switch assembly also has a couple of LEDs, one yellow and one green. I suppose they indicate standby and on states. I'm connecting the pushbutton to a [Pololu Pushbutton Switch](https://www.pololu.com/product/2812) to control the main power. The video controller has two LEDs for standby and on as well. I'm going to rewire them to the switch.
 
 ## System fan
@@ -87,7 +107,11 @@ It'd be nice to be able to control the volume of the audio output. Apple devices
 
 And on the volumn control buttons... They are mounted on a small PCB board, along with an LED for HDD. Remember those HDD activity indicators back in the days? They were on every computer, including laptops! I doubt anyone ever found them useful. Anyway, the PCB iss connected to the motherboard with a 6 pin connector. I thought it'd be easy to wire up. I thought each button would just short two pins (or a pin to the ground). However, after some poking around, it appeared that there's some resistors and capacitors on the board, probably for debouncing. What's really strange is that only the vol+ button shorts a pin to the ground. The other two have a 20K ohm resistance to the ground when open and 10K when closed. Not sure what the deal is. The HDD LED is somewhat controlled by a BJT on board and requires a +5V power.
 
-Instead of tweaking the circuit, I decided to rewire it such that all three buttons simply short a pin to the ground. MAX5486 does its own debouncing. I also removed the LED and replaced it with my own. I am planning to use it to indicate the mute state. MAX5486 supports indicating the sound level with 4 LEDs. When muted, all LEDs are off. So I just need to wire my LED to the pin for the lowest level, but reverse the logic (i.e. wire the LED between Vcc and the pin, instead of the pin and ground).
+Instead of tweaking the circuit, I decided to rewire it such that all three buttons simply short a pin to the ground. MAX5486 does its own debouncing. I also removed the LED and replaced it with my own. I am planning to use it to indicate the mute state. MAX5486 supports indicating the sound level with 5 LEDs. When muted, all LEDs are off. So I just need to wire my LED to the pin for the lowest level, but reverse the logic (i.e. wire the LED between Vcc and the pin, instead of the pin and ground).
+
+Here's the final circuit for the volume control module. It takes in 5V DC power and audio input and outputs audio for the amps. It also passes through the 5V DC and generates 3.3V DC for the amps.
+
+![Volume Control](volume-control.png)
 
 ## Microphones
 * The machine comes with 2 microphones. One left and one right. They are directly connected to the motherboard via a 5 pin connector. Physically, they share the same PCB board as the webcam.
