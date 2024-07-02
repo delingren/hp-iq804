@@ -10,7 +10,7 @@ The next step is to interface the PDM signals with USB.
 ## Sampling and Decoding
 There are at least two ways to do this. The easiest is to filter the output and convert it to analog, then feed it to a USB sound card. This should be easy. But what's the fun in that?! Plus, I'm an engineer. Let's over engineer the hell out of it!
 
-So, now I am trying to directly convert the PDM digital signal into USB data frames. Some searching led me to the first [important discovery](https://www.hackster.io/sandeep-mistry/create-a-usb-microphone-with-the-raspberry-pi-pico-cc9bd5) that converts a momo microphone into a USB microphone using a Pi Pico. I tried it and it worked out of the box! I could hook up with one mic and call it good there. But I wanted to make use of both of the mics. I can either average the input of both or create a stereo mic. I suspect the latter is probably simpler.
+So, now I am trying to directly convert the PDM digital signal into USB data frames. Some searching led me to the first [important discovery](https://www.hackster.io/sandeep-mistry/create-a-usb-microphone-with-the-raspberry-pi-pico-cc9bd5) that converts a mono microphone into a USB microphone using a Pi Pico. I tried it and it worked out of the box! I could hook up with one mic and call it good there. But I wanted to make use of both of the mics. I can either average the input of both or create a stereo mic. I suspect the latter is probably simpler.
 
 ## USB Interface
 Now, to do that, I need to modify the code. First, I need to present the Pico as a stereo mic. The project aforementioned uses tinyusb library to turn the Pico into a USB audio device. So I started looking into USB audio. Concepcts I learned along the way.
