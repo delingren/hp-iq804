@@ -38,21 +38,25 @@ Components to be removed or ignored:
 The first step is to open up the machine and disassemble the parts, reverse engineering some components if needed. I found [these instructions](disassembly.pdf) from HP which helped with the disassembling process.
 
 ## Main interface
-The main interface with the computer is a USB C connection. I have an USB C -> HDMI adapter with a USB-A port and PD.
-* The HDMI port is connected to the video controller via an HDMI cable.
-* The USB-A port is connected to a downstream USB 2.0 hub for the peripherals and open USB ports.
-* The PD port is powered by a 19V -> PD charging module. This is for laptops that can be charged via its USB C port via PD. All Macbooks can. Some PCs can't.
+As a design goal, the main interface with the computer would be a single USB C connection. I have a USB-C to HDMI adapter with a downstream USB-A port and PD for charging the host.
+* The HDMI port would be connected to the video controller via an HDMI cable.
+* The USB-A port would be connected to a downstream USB 2.0 hub for the peripherals and open USB ports.
+* Optionally, the PD port would be powered by a 19V -> PD charging module. This is for laptops that can be charged via its USB C port via PD. All Macbooks can. Some PCs can't.
 
 ## Display
-The idea is to use a video controller to drive the panel. There's quite a few video controllers out there. I did a lot of research on [this page](https://hackaday.io/project/179868-all-about-laptop-display-reuse) that provides a lot of info on reusing LDC panels, especially laptop panels.
+The idea is to use a video controller to drive the panel. There's quite a few video controllers out there. I did a lot of research on [this page](https://hackaday.io/project/179868-all-about-laptop-display-reuse) that provides a lot of info on reusing LDC panels, especially laptop panels. I have also reused a couple of LCD panels harvested from end of life laptops.
 
+Here's a summary of the LCD panel.
 * Model: [CLAA260WU11](https://www.panelook.com/CLAA260WU11_CPT_25.5_LCM_overview_2842.html)
-* LVDS (30 pin), 2 channel, 8 bit, CCFL
-* Native resolution 1920x1200
-* The daughter board provides the DC power (19 volts) for the inverter.
-* The inverter connector consists a bunch of Vcc and GND wires, connected directly to the 19V DC power. In addition, there is an EN and a DIM pins, connected to the motherboard. When the motherboard is powered on, I’m measuring ~4.4v on these pins.
-* I connected both EN and DIM to +5v DC and the panel lighted up properly. So I rewired them to the inverter output of the video controller. Note that I'm not using the 12v output of the inverter output of the video controller.
-* I first ordred a PCB800862 controller. But I couldn’t get it to support 1920x1200. I think its firmware needed to be flashed. Then I ordered an M.MT68676.3 intended to be used for LM240WU2, which has the same resolution and is also 2 ch 8 bit, and it worked.
+* Interface: LVDS (30 pin), 2 channel, 8 bit
+* Backlight: CCFL
+* Native resolution: 1920x1200
+
+The daughter board provides the DC power (19 Volts) for the inverter. I am keeping it this way. The inverter connector consists a bunch of Vcc and GND wires, connected directly to the 19V DC power. In addition, there is an EN and a DIM pins, connected to the motherboard. When the motherboard is powered on, I’m measuring ~4.4V on these pins.
+
+I connected both EN and DIM to +5V and the panel lighted up properly. So I rewired them to the inverter output of the video controller. Note that I'm not using the 12V output of the inverter output of the video controller, but rather using its originally DC power.
+
+For the video controller, I first ordred a PCB800862 controller. But I couldn’t get it to support 1920x1200. I think its firmware needed to be flashed. Then I ordered an M.MT68676.3 intended to be used for LM240WU2, which has the same resolution and is also 2 ch 8 bit, and it worked.
 
 ## Speakers
 * There are 2 enclosures, one for the left channel and one for the right.
@@ -127,10 +131,33 @@ I used a solderable breadboard for the final product and soldered the MCU for th
 ![Volume Control PCB](IMG_0197.jpeg)
 
 ## Webcam
-The webcam is a standard USB device, with wires correctly color labled. All I needed to do is solder the wires to a USB plug. So there's nothing too exciting here.
+The webcam is a standard USB device, with wires correctly color labled. All I needed to do is to solder the wires to a USB connector. So there's nothing too exciting here.
 
 ## Ambient LED light
-There's a strip of blue LEDs at the bottom of the display, illuminating the keyboard. It's controlled by a single button on the right side panel. There's a PCB with connections to a light sensoring LED and the motherboard. It seems to be a USB device. I suppose HP has a Windows driver that controls the light based on the ambient lighting. I have no use for the light sensoring LED or the USB port. So I simply discarded those cables. When provided with 5V DC power, the LED and the control button work fine. Each time the button is pressed, it cycles through 3 levels of brightness.
+There's a strip of blue LEDs at the bottom of the display, illuminating the keyboard. It's controlled by a single button on the right side panel. There's a PCB with connections to a light sensoring LED and the motherboard. It seems to be a USB device. I suppose HP has a Windows driver that controls the light based on the ambient lighting. I have no use for the light sensoring LED or the USB port. So I simply discarded those cables and parts. When provided with 5V DC power, the LED and the control button work fine. Each time the button is pressed, it cycles through 3 levels of brightness.
+
+## System fan
+The original machine has a 12V 0.4A system fan that blows into the LCD panel inverter, in addition to two fans cooling the CPU and GPU. I don't have data on the inverter but a typical wattage of a CCFL inverter is ~5 Watts. I suppose running it at 5 Volts should be sufficient to dissipate the heat. I also want to turn it on only when the inverter is turned on. Therefore I am piggy-backing on the inverter EN signal of the video controller.
+
+I have two options to control the fan: MOSFET or relay. MOSFET is quieter and low profile. So I'm inclined to use a MOSFET. There are a few issues to address though.
+
+* The EN signal is 5 Volts. So I need a logic level MOSFET.
+* 2N7000, a typical logic level MOSFET, has a resistance of ~5 Ohm when open. This is probably significant for a small motor.
+* The inrush current when a motor starts is significantly larger than its running current. I need to make sure the current doesn't exceed the current rating of the MOSFET.
+
+I have no means to measure the peak current. But 3x running current is a rule of thumb for estimating the inrush current. So I connected the fan to a 5-Volt source, in series with a 5.6 Ohm resistor, simulating the resistance of the MOSFET, and measured its running current. It measured ~65 mA. If we go by the 3x rule, the peak would be exactly at the 200 mA current rating of 2N7000, cutting too close. So I decided to put two 2N7000s in parallel, which should reduce the resistance as well.
+
+![Fan Control Circuit](fan-control.png)
+
+## USB 2.0 Hub
+Here are all the USB ports I need
+* Pi Pico (for the microphones)
+* Webcam
+* CD card reader and 2 open ports 
+* 3 open ports (originally on the motherboard)
+* Touch screen
+
+So, the tally is 9. I ordered a 7 port hub circuit from aliexpress. It has its own 5V DC power. I am also going to connect another 4-port USB hub to it. The second USB hub will be physically installed at the location of the motherboard, expsing 3 ports to the outside through the cutout of the panel.
 
 ## Power source
 I'm reusing the 230 Watt, 19 Volt DC power adapter. The connector is 7.4mm OD/5mm ID, used by many Dell and HP laptops. I have a couple of Dell and HP chargers in my drawer. What's more, most old laptop chargers are ~19V and USB PD is 20V. So it's easy to replace the power adapter if it ever breaks.
@@ -157,20 +184,7 @@ Regulator: [D36V28F12](https://www.pololu.com/product/3786)
 I found a module on aliexpress that takes DC input and outputs PD.
 
 ### Power switch
-The original power switch on this machine is a pushbutton that shorts a pin to the ground on the motherboard to turn on the machine. I am connecting the wires to this [electronic switch](https://www.pololu.com/product/2812)
+The original power switch on this machine is a pushbutton that shorts a pin to the ground on the motherboard to turn on the machine. I am hooking it up with this [electronic switch](https://www.pololu.com/product/2812).
 
 ### Indicator LEDs
-The switch assembly also has a couple of LEDs, one yellow and one green. I suppose they indicate standby and on states. I was going to reuse the LEDs. However, their anodes are hard wired to the ground and it wouldn't work with the electronic switch, which needs two standalone wires for the pushbutton. So I desoldered the LEDs and hot glued my own SMD LED on the board and soldered its leads to the connector. All in all, this module has 4 outgoing wires: 2 for the pushbutton and 2 for the LED. The LED is driven by the switched 19V DC with a 470 Ohm resistor. TODO: 5V DC with a ~60 Ohm resistor.
-
-## System fan
-Use a solid state relay or a MOSFET to control the fan. The relay is controlled by the EN pin of the inverter.
-
-## USB 2.0 Hub
-Here are all the USB ports I need
-* Pi Pico (for the microphones)
-* Webcam
-* CD card reader and 2 open ports 
-* 3 open ports (originally on the motherboard)
-* Touch screen
-
-So, the tally is 9. I ordered a 7 port hub circuit from aliexpress. It has its own 5V DC power. I am also going to connect another 4-port USB hub to it. The second USB hub will be physically installed at the location of the motherboard, expsing 3 ports to the outside through the cutout of the panel.
+The switch assembly also has a couple of LEDs, one yellow and one green. I suppose they are for standby and on states. I was going to reuse the LEDs. However, their anodes are hard wired to the ground and it wouldn't work with the electronic switch, which needs two standalone wires, instead of ground, for the pushbutton. So I desoldered the LEDs and hot glued my own SMD LED on the board and soldered its leads to the connector. All in all, this module has 4 outgoing wires: 2 for the pushbutton and 2 for the LED. The LED is driven by the switched 19V DC with a 470 Ohm resistor. TODO: 5V DC with a ~60 Ohm resistor.
