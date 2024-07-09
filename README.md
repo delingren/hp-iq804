@@ -6,35 +6,36 @@ I found this all-in-one PC at a PC recycle bin long ago (circa 2014). It was use
 Disclaimer: as a professional software engineer, I am not well versed in electronics beyond the basics, especially analog. So I'm not really sure if what I did was correct or optimal. But things did work. If anyone reading this finds any mistakes, please leave a comment.
 
 ## Goal
-Convert this all-in-one computer into an external display and docking station, reusing as many components as possible.
+Convert this all-in-one computer into an external display and docking station for laptops or smart phones, reusing as many components as possible.
 
 Primary goals: 
 * Reuse the display
 * Reuse the speakers
 
 Secondary goals:
+* Charge the connected device through PD
 * Reuse the microphones
 * Reuse the volume control buttons
 * Reuse the webcam
 * Reuse the power switch button
-* Hook up the system fan (for cooling the inverter)
-* Add a USB 2.0 hub and connect it to the 5 open USB ports
-* Reuse the SD card reader assembly
-* Reuse ambient LED light
-* Add charging through PD
-* Reuse touchscreen (? I don't really like touchscreens on computers)
+* Hook up the system fan
+* Add a USB 2.0 hub and connect it to IO panel ports
+* Reuse the SD card reader
+* Reuse the ambient LED light
+* ~~Reuse touchscreen~~ (I don't really like touchscreens on computers)
+* Additional power only PD charging port. It can be used for charging an accesory. One can also PD trigger and charge a laptop that doesn't support PD charging.
 
 Components to be removed or ignored:
-* Motherboard + GPU
-* CPU & GPU fans
-* BT module
-* CD drive
-* Hard drive
-* 1394 connector
-* WiFi antennas
-* IR led
-* Light sensor
-* Hot start key
+* Motherboard + GPU.
+* CPU & GPU fans.
+* BT module. What laptop doesn't have built-in BT these days?
+* CD drive. What is a CD?! It's probably a DVD drive. Not that it doesn't belong to the museum either.
+* Hard drive.
+* 1394 connector. Come on, it's 21st century
+* WiFi antennas.
+* IR LED. The machine was supposed to come with a remote control, but I don't have it. What am I supposed to do with it anyway?
+* Light sensor.
+* Hot start key (really not sure what it was)
 
 ## Disassembly
 The first step is to open up the machine and disassemble the parts, reverse engineering some components if needed. I found [these instructions](disassembly.pdf) from HP which helped with the disassembling process.
@@ -43,7 +44,7 @@ The first step is to open up the machine and disassemble the parts, reverse engi
 As a design goal, the main interface with the computer would be a single USB C connection. I have a USB-C to HDMI adapter with a downstream USB-A port and PD for charging the host.
 * The HDMI port would be connected to the video controller via an HDMI cable.
 * The USB-A port would be connected to a downstream USB 2.0 hub for the peripherals and open USB ports.
-* Optionally, the PD port would be powered by a 19V -> PD charging module. This is for laptops that can be charged via its USB C port via PD. All Macbooks can. Some PCs can't.
+* The PD port would be powered by a 19V -> PD charging module. This is for laptops that can be charged via its USB C port via PD. All Macbooks can. Some PCs can't.
 
 ## Display
 The idea is to use a video controller to drive the panel. There's quite a few video controllers out there. I did a lot of research on [this page](https://hackaday.io/project/179868-all-about-laptop-display-reuse) that provides a lot of info on reusing LDC panels, especially laptop panels. I have also reused a couple of LCD panels harvested from end of life laptops.
@@ -99,7 +100,7 @@ I also looked up the motherboard and found that its audio codec is AD1984, which
 
   <img src="IMG_0130.jpeg" width="400">
 
-I also found this [doc](https://www.akustica.com/Files/Admin/PDFs/AN40-1%201%20AKU2002CH%20Mic%20Module%20Design%20Guide.pdf) and [this](https://tzjwinfcha.pixnet.net/blog/post/25040549) (in Chinese) which indicate that they are MEMS digital microphones.
+I also found [this doc](https://www.akustica.com/Files/Admin/PDFs/AN40-1%201%20AKU2002CH%20Mic%20Module%20Design%20Guide.pdf) and [this press release](https://tzjwinfcha.pixnet.net/blog/post/25040549) (in Chinese) which indicate that they are MEMS digital microphones.
 
 Digital microphones are not passive components. I suspected they drew power from the camera’s USB port and the remaining 4 pins were clock and data for both mics. Sure enough, if the camera is not plugged in, the mics don’t work. So that confirmed my theory. That's also why I didn't get reading in the previous step.
 
@@ -192,42 +193,60 @@ I have no means to measure the peak current. But 3x running current is a rule of
 
 ![Fan Control Circuit](fan-control.png)
 
-## USB 2.0 Hub
-Here are all the USB ports I need
-* Pi Pico, internal, for the microphones
-* Webcam, internal,
-* CF card reader, internal
-* 5 open ports on the IO panel (I just need to pass through the ports to the hub)
-* Touch screen
+## USB 2.0 ports
+The original motherboard exposes a bunch of IO ports on the back (well, side, actually) panel, including 3 USBs, 1 S-Video, and some misc ports. It also has two front-panel (so to speak, it’s also on the side, lol) USB ports and two audio ports that are connected to the motherboard, and a SD card reader with a 1394 port.
 
-So, the tally is 9. I ordered a 7 port hub circuit from aliexpress. It has its own 5V DC power. I am also going to connect another 4-port USB hub to it.
+All I am interested in is the USB ports. My USB hub has 7 ports. Internally, I’m using 2 for the USB mic and the camera. The card reader occupies another one. That leaves me with 4. I’m connecting two to the front panel ports and two to the back panel. Two of these four will be used for a keyboard and a mouse, leaving two free ones.
 
-## Power source
-I'm reusing the 230 Watt, 19 Volt DC power adapter. The connector is 7.4mm OD/5mm ID, used by many Dell and HP laptops. I have a couple of Dell and HP chargers in my drawer. What's more, most old laptop chargers are ~19V and USB PD is 20V. So it's easy to replace the power adapter if it ever breaks.
+The front panel ports already have female USB 2.0 connectors. All I needed to do was to solder the wires to male connectors and to plug into the USB hub. The 3 back panel ports were on the motherboard. So they were just empty holes after removing the motherboard. Since I use only 2 of the holes for data, I’m using the third for a type C PD port (no data, just power). It can be used for charging an accessory.
 
-The video controller uses 12-15 Volt DC. So I can't feed it the input directly. I also need 5 Volts for the amps for the speakers as well as the powered USB hub and ambient LED light. So I'll need a 12V regulator and a 5V regulator. I'm using a Pololu 12V 2.4A step down regulator and a Plolu 5V 3.2A step down regulator. The speakers are 4 Watts (0.8A). My USB hub has 7 ports and I'm plugging a Pi Pico, the webcam, the card reader and the touchscreen. All of them cannot draw more than 1A, if that. So the 5V regulator should provide plenty juice, as long as I don't plugin multiple high power devices into the open USB ports. Not to mention the host computer can also supply 500 mA via its USB port.
+So I 3D printed this small holder that fits in the spot and hot glued it down in place. The female USB connectors are snugly pressed into the 3D print and super glued. Then I soldered wires to basically make them USB 2.0 extensions. The PD port is a USB C extension cable.
 
-TODO: measure actual current of these devices using a USB power meter.
+## Power train
+The machine comes with a 230 Watt, 19 Volt DC power adapter, in line with most old laptop power bricks. The connector is 7.4mm OD/5mm ID, used by many Dell and HP laptops. I have a couple of Dell and HP chargers in my drawer. I am was debating between using an external power adapter and integrating one inside. But given the rather low profile of the machine, it's probably hard to find an adpater that could fit in. Heat dissipation is probably going to suffer as well. The original machine had 3 fans and I removed 2.
 
-### 5V DC
-Physical connections:
-* Volume control module, which also powers the amps
-* USB Hub, also powering the microphone MCU, the webcam the CD card reader, the touchscreen, and open ports
+Since I want to charge the device, I'll need a PD charger and pass through the USB to HDMI adapter.
+
+### Voltages and buget
+* The USB to HDMI adapter is unbranded. I found it in an e-waste bin at work, so it was likely a bulk purchase. I did some measurements using a PD powermeter and it looks like it can output up to 55W and it consumes 5W itself. So I'm looking at 60W here.
+* The CCFL inverter runs directly on 19V. I tried 12V and it wouldn't power up. I didn't try anything in between. I don't know the spec of the inverter. But a quick Google search tells me a typical CCFL inverter is 3-5 Watts. Let's be conservative and call it 10W.
+* The video controller runs on 12-15V. So I can't feed it the input directly. I'll need a 12V rail. The spec calls for a 12V 3A power adapter. So, that's 36W, which is probably very conservative.
+* Everything else runs on 5V: all USB 2.0 devices, system fan, ambient LED light, and speakers. The 7 USB 2.0 ports are all standard downstream ports (SDPs). So each can draw up to 100 mA. The fan draws 65mA based on my measurement. The LED light should draw no more than 50mA. According to the specs, the speakers top out at 4W. So that's ~8W on the 5V rail.
+
+All in all, we are looking at 114W, plus some loss in voltage conversion. Let's say the overall efficiency is 85%, we will need a 134W input, which is very conservative. The original power adapter is way more than enough. The excess can be used for a power only PD port.
+
+### 5V Rail
+For the 5V rail, I'm using a Plolu 5V 3.2A step down regulator [D36V28F5](https://www.pololu.com/product/3782), more than enough than the power budget. Physical connections:
+* Volume control module, which also passes power to the amps.
+* USB hub
 * Ambient light LED
 * System fan (switched)
 
-Regulator: [D36V28F5](https://www.pololu.com/product/3782)
-
-### 12V DC
-Physical connection:
-* Video controller
-Regulator: [D36V28F12](https://www.pololu.com/product/3786)
+### 12V Rail
+For the 12V rail, I'm using a Pololu 12V 2.4A step down regulator Regulator: [D36V28F12](https://www.pololu.com/product/3786), which is a little less than the spec but it's been running fine so far.
 
 ### PD charging
-I found a module on aliexpress that takes DC input and outputs PD.
+Originally, I purchased a 65W PD module from aliexpress that takes a DC input and outputs USB PD. However, I encountered some random issues. Sometimes, my laptop (MacBook) would go haywire, disconnecting and connecting again repeatedly. Sometimes, the USB hub would not power up. After testing with a bunch of devices under different conditions, and some head scratching, and then some measurements with a PD power meter, I suspected that it was because of the voltage of my power supply, which is ~19 volts. The PD module does not boost the voltage, it only steps down. However, when the device requests 20 volts, it happily complies and provides only 19 volts, minus the voltage drop on the chip itself, which ends up being just ~18. According the PD spec, the voltage tolerance is 5%, or 1 volt for the 20-volt PDO. So it works fine as long as the PDO is 15 or under. It’d work fine for phones and laptops with rather full batteries, but not ones that are aggressively charging or power hungry. So I have a few options.
+* Use a power supply with a slightly higher voltage. Cons: I can’t find a laptop power supply with higher than 20 volt output; it also could cause damage to the CCFL inverter which is directly connected to the input. 
+* Boost the 19 volts to ~21 before feeding it to the PD module.
+* Find a PD module that provides up to 15 volts, limiting the charging power to 45 watts (3A is the current limit of 15V, according to PD specs). But I can’t seem to be able to find such a thing.
+* Use a PD module that boosts the input to 20 volts if necessary. This seems to be the most reasonable and least complicated solution. 
+
+For the last option, I found a few items on Amazon, directly shipped from China. They don’t have clear descriptions and specs and the ratings are in the mid 3s. So I decided not to take the risk. Eventually, I found this [SlimQ DC to PD extender](https://slimq.life/products/dc-to-usb-extender-for-150w-240) which seems much more reputable. It comes with 2 USB C ports that support PD and 2 USB A ports for QC. I could use this unit for 12V using a PD trigger (it does support 12V, which is optional in PD specs) and 5V too. But I already soldered and wired the 12V and 5V regulators. Plus, it’s less complicated this way, and I have an extra PD port that can be exposed for charging accessories.
 
 ### Power switch
 The original power switch on this machine is a pushbutton that shorts a pin to the ground on the motherboard to turn on the machine. I am hooking it up with this [electronic switch](https://www.pololu.com/product/2812).
 
 ### Indicator LEDs
-The switch assembly also has a couple of LEDs, one yellow and one green. I suppose they are for standby and on states. I was going to reuse the LEDs. However, their anodes are hard wired to the ground and it wouldn't work with the electronic switch, which needs two standalone wires, instead of ground, for the pushbutton. So I desoldered the LEDs and hot glued my own SMD LED on the board and soldered its leads to the connector. All in all, this module has 4 outgoing wires: 2 for the pushbutton and 2 for the LED. The LED is connecte to the output of the 5V regulator via a 56 Ohm resistor.
+The switch assembly also has a couple of LEDs, one yellow and one green. I suppose they are for standby and on states. I was going to reuse the LEDs. However, their anodes are hard wired to one of the leads of the pushbutton, which is supposed to be the ground. This wouldn't work with the electronic switch, which needs two standalone wires, instead of ground, for the pushbutton. So I desoldered the LEDs and hot glued my own SMD LED on the board and soldered its leads to the connector. All in all, this module has 4 outgoing wires: 2 for the pushbutton and 2 for the LED. The LED is connecte to the output of the 5V regulator via a 56 Ohm resistor.
+
+## Final product
+Features in a nutshell
+* USB-C interface with 55W PD charging
+* 1920x1200 60 Hz LCD display
+* Stereo speakers
+* Stereo microphones
+* Webcam
+* SD card reader
+* 4 open USB 2.0 ports
+* 1 extra 100W PD charging port
