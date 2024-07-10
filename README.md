@@ -240,6 +240,16 @@ The original power switch on this machine is a pushbutton that shorts a pin to t
 ### Indicator LEDs
 The switch assembly also has a couple of LEDs, one yellow and one green. I suppose they are for standby and on states. I was going to reuse the LEDs. However, their anodes are hard wired to one of the leads of the pushbutton, which is supposed to be the ground. This wouldn't work with the electronic switch, which needs two standalone wires, instead of ground, for the pushbutton. So I desoldered the LEDs and hot glued my own SMD LED on the board and soldered its leads to the connector. All in all, this module has 4 outgoing wires: 2 for the pushbutton and 2 for the LED. The LED is connecte to the output of the 5V regulator via a 56 Ohm resistor.
 
+### Side note on power consumption
+Out of curiosity, I used a USB power meter to measure some of the USB 2.0 devices I'm connecting to the USB hub, and measured their power consumption. And here's my findings.
+
+* Pi Pico: 30mA
+* Card reader: 50mA when actively reading and writing
+* Webcam: 90mA when activated
+* Mouse: 50mA
+* Logitech mouse/keyboard dongle: 25mA
+* Mechanical keyboard (powered by an Atmel mega32u4): 30mA
+
 ## Final product
 Features in a nutshell
 * USB-C interface with 55W PD charging
