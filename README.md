@@ -110,6 +110,8 @@ Digital microphones are not passive components. I suspected they drew power from
 
 The next step is to interface the PDM signals with USB.
 
+Side note: laptop webcams usually run on 3.3V instead of 5. I forgot to take a measurement while the machine still bootet. So I don't know for sure if it was 3.3 or 5 originally. But when I powered it with 3.3V, both webcam and microphones worked, although 5V also worked. So I'm going with 3.3 to avoid shortening the life span of these devices.
+
 ### Sampling and Decoding
 There are at least two ways to do this. The easiest is to low pass filter the output and convert it to analog, then feed it to a USB sound card. This should be super easy. But what's the fun in that?! Plus, I'm an engineer. Let's over engineer the hell out of it!
 
@@ -179,7 +181,12 @@ Pinout:
 * Lower row right: GND, Mic CLK, Mic R DAT, Mic L DAT
 
 ## Webcam
-The webcam is a standard USB device, with wires correctly color labled. All I needed to do is to solder the wires to a USB connector. So there's nothing too exciting here.
+The webcam is a standard USB device, with wires correctly color labled. All I needed to do was soldering them to a USB connector. One caveat is that it's supposed to be powered by 3.3V. Although I do have a regulated 3.3V from the microphone MCU, it's a little inconvenient to run a wire. So I just used two diodes to drop ~1.5V. I soldered them in series in the Vcc wire. 
+
+![diodes](IMG_0237.jpeg)
+![USB connector](IMG_0238.jpeg)
+
+If I were to redesign everything, I would probably use a bigger breadboard for the volume control and microhpone MCU, and run the wires for the webcam and the microphones to the board and utilize the 3.3V on the MCU. Then I would have two USB connections coming out of that board for the webcam and microphones. 
 
 ## Ambient LED light
 There's a strip of blue LEDs at the bottom of the display, illuminating the keyboard. It's controlled by a single button on the right side panel. There's a PCB with connections to a light sensoring LED and the motherboard. It seems to be a USB device. I suppose HP has a Windows driver that controls the light based on the ambient lighting. I have no use for the light sensoring LED or the USB port. So I simply discarded those cables and parts. When provided with 5V DC power, the LED and the control button work fine. Each time the button is pressed, it cycles through 3 levels of brightness.
@@ -243,6 +250,16 @@ The original power switch on this machine is a pushbutton that shorts a pin to t
 
 ### Indicator LEDs
 The switch assembly also has a couple of LEDs, one yellow and one green. I suppose they are for standby and on states. I was going to reuse the LEDs. However, their anodes are hard wired to one of the leads of the pushbutton, which is supposed to be the ground. This wouldn't work with the electronic switch, which needs two standalone wires, instead of ground, for the pushbutton. So I desoldered the LEDs and hot glued my own SMD LED on the board and soldered its leads to the connector. All in all, this module has 4 outgoing wires: 2 for the pushbutton and 2 for the LED. The LED is connecte to the output of the 5V regulator via a 56 Ohm resistor.
+
+### Side note on power consumption
+Out of curiosity, I used a USB power meter to measure some of the USB 2.0 devices I'm connecting to the USB hub, and measured their power consumption. And here's my findings.
+
+* Pi Pico: 30mA
+* Card reader: 50mA when actively reading and writing
+* Webcam: 90mA when activated
+* Mouse: 50mA
+* Logitech mouse/keyboard dongle: 25mA
+* Mechanical keyboard (powered by an Atmel mega32u4): 30mA
 
 ## Final product
 Features in a nutshell
