@@ -3,27 +3,31 @@
 ## Context
 I found this all-in-one PC at a PC recycle bin long ago (circa 2014). It was used as a guest computer in my house for a while. Now it's way too old even for that purpose. HP Touchsmart IQ804 (marketed as IQ800) is an all-in-one PC released in 2008. It was originally equipped with Windows Vista and is upgradable to Windows 7. I never tried but I doubt it'd be able to run Windows 10. There's no way it'd be able to run Windows 11. Instead of throwing it away, I decided to harvest as many components as I can. In particular, the 26 inch, 1920x1200 LCD panel is crispy clear and I really love it.
 
-Disclaimer: as a professional software engineer, I am not well versed in electronics beyond the basics, especially analog. So I'm not really sure if what I did was correct or optimal. But things did work. If anyone reading this finds any mistakes, please leave a comment.
+Disclaimer: as a professional software engineer, I am not well versed in electronics or hardware beyond the basics, especially analog stuff. So I'm not really sure if what I did was correct or optimal. But I haven't set anything on fire yet. If anyone reading this finds any mistakes, please leave a comment.
 
 ## Goal
 Convert this all-in-one computer into an external display and docking station for laptops or smart phones, reusing as many components as possible.
 
 Primary goals: 
+* Have fun and learn something useful or completely useless along the way
 * Reuse the display
 * Reuse the speakers
 
 Secondary goals:
 * Charge the connected device through PD
 * Reuse the microphones
-* Reuse the volume control buttons
 * Reuse the webcam
+* Reuse the volume control buttons
 * Reuse the power switch button
 * Hook up the system fan
 * Add a USB 2.0 hub and connect it to IO panel ports
 * Reuse the SD card reader
 * Reuse the ambient LED light
-* ~~Reuse touchscreen~~ (I don't really like touchscreens on computers)
+* ~~Reuse the touchscreen~~ (I don't really like touchscreens on computers)
 * Additional power only PD charging port. It can be used for charging an accesory. One can also PD trigger and charge a laptop that doesn't support PD charging.
+
+Non goals:
+* Save money
 
 Components to be removed or ignored:
 * Motherboard + GPU.
