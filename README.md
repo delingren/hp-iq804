@@ -106,7 +106,7 @@ I also looked up the motherboard and found that its audio codec is AD1984, which
 
 I also found [this doc](https://www.akustica.com/Files/Admin/PDFs/AN40-1%201%20AKU2002CH%20Mic%20Module%20Design%20Guide.pdf) and [this press release](https://tzjwinfcha.pixnet.net/blog/post/25040549) (in Chinese) which indicate that they are MEMS digital microphones.
 
-Digital microphones are not passive components. I suspected they drew power from the camera’s USB port and the remaining 4 pins were clock and data for both mics. Sure enough, if the camera is not plugged in, the mics don’t work. So that confirmed my theory. That's also why I didn't get reading in the previous step.
+Digital microphones are not passive components. I suspected they drew power from the camera’s USB port and the remaining 4 pins were clock and data for both mics. Sure enough, if the camera is not plugged in, the mics don’t work. So that confirmed my theory.
 
 The next step is to interface the PDM signals with USB.
 
@@ -119,8 +119,10 @@ To generate the clock signal, I used PIO on RP2040 and made a small change to [t
 
 So, now I am trying to directly convert the PDM digital signal into USB data frames. Some searching led me to the first [important discovery](https://www.hackster.io/sandeep-mistry/create-a-usb-microphone-with-the-raspberry-pi-pico-cc9bd5) that converts a mono microphone into a USB microphone using a Pi Pico. I tried it and it worked out of the box! I could hook up with one mic and call it good there. But I wanted to make use of both of the mics. I can either average the input of both or create a stereo mic. I suspect the latter is probably simpler.
 
+I found that someone has tried a [mic array](https://github.com/CaydenPierce/MSA). I gave it a try, but the result is too noisy. Not sure what's happening. Then I decided to code it myself based on Sandeep's project.
+
 ### USB Interface
-Now, to do that, I need to modify the code. First, I need to present the Pico as a stereo mic. The project aforementioned uses tinyusb library to turn the Pico into a USB audio device. So I started looking into USB audio. Concepcts I learned along the way.
+Now, to do that, I need to modify the code. First, I need to present the Pico as a stereo mic. The project aforementioned uses tinyusb library to turn the Pico into a USB audio device. So I started looking into USB audio. Concepcts I learned along the way:
 
 * Device Descriptors
 * Configuration Descriptors
@@ -128,20 +130,18 @@ Now, to do that, I need to modify the code. First, I need to present the Pico as
 * Endpoint Descriptors
 * Isochronous Transfer
 
+Eventually, I changed the USB descriptor to present as a stereo mic.
+
 ### Sampling both channels
-In the hackster blog post aforementioned, the author Sandeep uses Pico's PIO to generate the clock signal at 1.024 MHz and sample the data pin once per clock cycle, or 16 times per milliesecond (16,000 kHz), then uses a soft PDM filter to down sample, filter, and produce 16 amplitude values, each a 16 bit signed integer. To do this for 2 mics, I
+In the hackster blog post aforementioned, the author Sandeep uses Pico's PIO to generate the clock signal at 1.024 MHz and sample the data pin once per clock cycle, or 16 times per milliesecond (16 kHz), then uses a soft PDM filter to down sample, filter, and produce 16 amplitude values, each a 16 bit signed integer. My changes include:
 
-* Read 2 bits from two *consecutive* pins on a PIO statemachine.
-* Changed PDM filter logic to separate left and right signals.
-* Change PDM filter logic to filter both signals. The filter is stateful and you can't call the filter function on both signals alternatively.
-* Generate output for both channels. The 16-bit signed integer values representing the amplitude are alternating. I.e. one value for the left followed by one value for the right and repeat.
+* Reading 2 bits (pins 3 and 4) instead of 1 in each clock cycle on a PIO statemachine.
+* Connecting clock pins for both channels to pin 5.
+* In the PDM filter, using some bit gymnastics to separate the left and right channels.
+* In the PDM filter, filtering both signals. The filter is stateful and you can't call the filter function on both signals alternatively.
+* Generating USB frames for both channels. The 16-bit signed integer values representing the amplitude are alternating. I.e. one value for the left followed by one value for the right and repeat.
 
-I found that someone has tried a [mic array](https://github.com/CaydenPierce/MSA). I gave it a try, but the result is too noisy. Not sure what's happening. Then I decided to code it myself based on Sandeep's project and it was a success. The changes involved:
-* Read 2 bits (pins 3 and 4) instead of 1 in each clock cycle.
-* Use some bit gymnastics to separate the left and right channels for filtering.
-* Change the USB descriptor to present as a stereo mic.
-* Write data for two channels. And [here](https://github.com/delingren/mems-mic/tree/stereo_no_encoding) is the code. It's hacky and hard coded. If anyone is reading this, don't use it as a library.
-* I am using pin 5 as the clock signal for both mics.
+And [here](https://github.com/delingren/mems-mic/tree/stereo_no_encoding) is the code. It's hacky and hard coded. But it works. If anyone is reading this, don't use it as a library.
 
 I did all the development and debugging with two Pi Picos, one as a debug probe. The final product uses an RP2040 board with a smaller foot print with fewer pins, since I only need 3 pins.
 
