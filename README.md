@@ -96,7 +96,7 @@ For the video controller, I first ordred a PCB800862 controller. But I couldn’
 The machine comes with 2 microphones. One left and one right. They are directly connected to the motherboard via a 5 pin connector. 
 
 ### Identification
-The mics physically share the same PCB as the camera. The PCB has two clusters of wires coming out. One for the camera and one for the mics. The clusters have labels. The camera cluster has 4 wires: black, red, green, and white. They are connected to some pin headers on the motherboard. It looks like a USB connection to me. So I soldered the wires to a USB-A plug and plugged it into a laptop and it worked fine.
+The mics physically share the same PCB as the camera. The PCB has two clusters of wires coming out. One for the camera and one for the mics. The camera cluster has 4 wires: black, red, green, and white. They are connected to some pin headers on the motherboard. It looks like a USB connection to me. So I soldered the wires to a USB-A plug and plugged it into a laptop and it worked fine.
 
 Now the mics. I originally thought they were passive analog mics. The markings on the microphone is "AKU2004". I was not able to find too much information, other than that they might be digital microphones, designed for laptops. It makes sense that they are digital mics. It'd be too noisy to run 30 cm wires for mic level signals inside a computer.
 
