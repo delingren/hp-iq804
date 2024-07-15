@@ -23,8 +23,7 @@ Secondary goals:
 * Add a USB 2.0 hub and connect it to IO panel ports
 * Reuse the SD card reader
 * Reuse the ambient LED light
-* ~~Reuse the touchscreen~~ (I don't really like touchscreens on computers)
-* Additional power only PD charging port. It can be used for charging an accesory. One can also PD trigger and charge a laptop that doesn't support PD charging.
+* Additional PD charging port (no data)
 
 Non goals:
 * Save money
@@ -32,6 +31,7 @@ Non goals:
 Components to be removed or ignored:
 * Motherboard + GPU.
 * CPU & GPU fans.
+* Touchscreen. I don't really like touchscreens on computers. Macs don't support touchscreen anyway.
 * BT module. What laptop doesn't have built-in BT these days?
 * CD drive. What is a CD?! It's probably a DVD drive. Not that it doesn't belong to the museum either.
 * Hard drive.
@@ -45,7 +45,7 @@ Components to be removed or ignored:
 The first step is to open up the machine and disassemble the parts, reverse engineering some components if needed. I found [these instructions](disassembly.pdf) from HP which helped with the disassembling process.
 
 ## Main interface
-As a design goal, the main interface with the computer would be a single USB C connection. I have a USB-C to HDMI adapter with a downstream USB-A port and PD for charging the host.
+As a design goal, the main interface with the host (computer or phone) would be a single USB C connection. I have a USB-C to HDMI adapter with a downstream USB-A port and PD for charging the host.
 * The HDMI port would be connected to the video controller via an HDMI cable.
 * The USB-A port would be connected to a downstream USB 2.0 hub for the peripherals and open USB ports.
 * The PD port would be powered by a 19V -> PD charging module. This is for laptops that can be charged via its USB C port via PD. All Macbooks can. Some PCs can't.
@@ -260,6 +260,9 @@ Out of curiosity, I used a USB power meter to measure some of the USB 2.0 device
 * Mouse: 50mA
 * Logitech mouse/keyboard dongle: 25mA
 * Mechanical keyboard (powered by an Atmel mega32u4): 30mA
+
+## Physical installation
+There's a metal sheet on the back of the LCD panel. The motherboard and all other original components were installed on the sheet. I don't want to drill and tap it, so I mounted everything with double sided foam tapes. I 3D printed standoffs for all the PCBs to keep them off the metal.
 
 ## Final product
 Features in a nutshell
