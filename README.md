@@ -44,14 +44,17 @@ Components to be removed or ignored:
 ## Disassembly
 The first step is to open up the machine and disassemble the parts, reverse engineering some components if needed. I found [these instructions](disassembly.pdf) from HP which helped with the disassembling process.
 
-## Main interface
-As a design goal, the main interface with the host (computer or phone) would be a single USB C connection. I have a USB-C to HDMI adapter with a downstream USB-A port and PD for charging the host.
+## Interfaces with the host
+As a design goal, the main interface with the host (computer or phone) would be a single USB C connection. I have a few USB-C to HDMI adapters with downstream USB-A port(s) and pass-through charging. A couple of them have short (~10 cm) cables. But I want it to have a female port. I considered using a coupler. After doing some research, I realized that USB-C couplers are actually prohibited by USB spec, although such products exist on Amazon. I actually tried a couple of them and they only worked in one orientation. So I decided to use one with a detachable cable, [Anker 343](https://www.anker.com/products/a8372). It has two HDMI ports, two downstream USB-A ports, and one downstream USB-C port. I'm only using one HDMI and one USB-A, leaving plenty room for potential expansion.
+
 * The HDMI port would be connected to the video controller via an HDMI cable.
 * The USB-A port would be connected to a downstream USB 2.0 hub for the peripherals and open USB ports.
-* The PD port would be powered by a 19V -> PD charging module. This is for laptops that can be charged via its USB C port via PD. All Macbooks can. Some PCs can't.
+* The PD-in port would be powered by a DC -> PD charging module.
+
+In addition, I'm also providing a power only PD port so that one can charge an accessory.
 
 ## Display
-The idea is to use a video controller to drive the panel. There's quite a few video controllers out there. I did a lot of research on [this page](https://hackaday.io/project/179868-all-about-laptop-display-reuse) that provides a lot of info on reusing LDC panels, especially laptop panels. I have also reused a couple of LCD panels harvested from end of life laptops.
+The idea is to use a video controller to drive the panel. There's quite a few video controllers out there. I did a lot of research on [this page](https://hackaday.io/project/179868-all-about-laptop-display-reuse) that provides a lot of info on reusing LDC panels, especially laptop panels.
 
 Here's a summary of the LCD panel.
 * Model: [CLAA260WU11](https://www.panelook.com/CLAA260WU11_CPT_25.5_LCM_overview_2842.html)
@@ -59,11 +62,11 @@ Here's a summary of the LCD panel.
 * Backlight: CCFL
 * Native resolution: 1920x1200
 
-The daughter board provides the DC power (19 Volts) for the inverter. I am keeping it this way. The inverter connector consists a bunch of Vcc and GND wires, connected directly to the 19V DC power. In addition, there is an EN and a DIM pins, connected to the motherboard. When the motherboard is powered on, I’m measuring ~4.4V on these pins.
+The daughter board provides the DC power (19 Volts) for the inverter. The inverter connector consists a bunch of Vcc and GND wires, connected directly to the 19V DC power. In addition, there is an ENABLE and a DIM pins, connected to the motherboard. When the motherboard is powered on, I’m measuring ~4.4V on these pins.
 
-I connected both EN and DIM to +5V and the panel lighted up properly. So I rewired them to the inverter output of the video controller. Note that I'm not using the 12V output of the inverter output of the video controller, but rather using its originally DC power.
+I connected both ENABLE and DIM to +5V and the panel lighted up properly. So I rewired them to the inverter output of the video controller. Note that I'm not using the 12V output of the inverter output of the video controller, but rather using its originally DC power.The inverter doesn't seem to work with 12 Volts, and there is no need to rewire anyway.
 
-For the video controller, I first ordred a PCB800862 controller. But I couldn’t get it to support 1920x1200. I think its firmware needed to be flashed. Then I ordered an M.MT68676.3 intended to be used for LM240WU2, which has the same resolution and is also 2 ch 8 bit, and it worked.
+For the video controller, I first ordred a PCB800862 controller. But I couldn’t get it to support 1920x1200. I think its firmware needed to be flashed. Then I ordered an M.MT68676.3, intended to be used for LM240WU2, which has the same resolution and is also 2 ch 8 bit, and it worked.
 
 ## Speakers
 * There are 2 enclosures, one for the left channel and one for the right.
@@ -234,7 +237,7 @@ For the 5V rail, I'm using a Plolu 5V 3.2A step down regulator [D36V28F5](https:
 * System fan (switched)
 
 ### 12V Rail
-For the 12V rail, I'm using a Pololu 12V 2.4A step down regulator Regulator: [D36V28F12](https://www.pololu.com/product/3786), which is a little less than the spec but it's been running fine so far.
+For the 12V rail, I'm using a Pololu 12V 2.4A step down regulator Regulator: [D36V28F12](https://www.pololu.com/product/3786), which is a little less than the spec but I'm not powering the inverter. And it's been running fine so far.
 
 ### PD charging
 Originally, I purchased a 65W PD module from aliexpress that takes a DC input and outputs USB PD. However, I encountered some random issues. Sometimes, my laptop (MacBook) would go haywire, disconnecting and connecting again repeatedly. Sometimes, the USB hub would not power up. After testing with a bunch of devices under different conditions, and some head scratching, and then some measurements with a PD power meter, I suspected that it was because of the voltage of my power supply, which is ~19 volts. The PD module does not boost the voltage, it only steps down. However, when the device requests 20 volts, it happily complies and provides only 19 volts, minus the voltage drop on the chip itself, which ends up being just ~18. According the PD spec, the voltage tolerance is 5%, or 1 volt for the 20-volt PDO. So it works fine as long as the PDO is 15 or under. It’d work fine for phones and laptops with rather full batteries, but not ones that are aggressively charging or power hungry. So I have a few options.
@@ -266,11 +269,14 @@ There's a metal sheet on the back of the LCD panel. The motherboard and all othe
 
 ## Final product
 Features in a nutshell
-* USB-C interface with 55W PD charging
+* USB-C interface with 85W PD charging
 * 1920x1200 60 Hz LCD display
 * Stereo speakers
 * Stereo microphones
 * Webcam
 * SD card reader
 * 4 open USB 2.0 ports
+* Volume control
+* Ambient LED light
+* Power switch and indicator
 * 1 extra 100W PD charging port
