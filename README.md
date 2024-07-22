@@ -53,7 +53,7 @@ Here's a diagram of how things are going to be connected.
                                           +-->| LCD Panel |
               +------------------+  LVDS  |   +-----------+
               | Video Controller |--------+ 
-              +------------------+  TSR   |   +------------+
+              +------------------+  TRS   |    +------------+
                         ^                  +-->| Audio amps |
                         | HDMI                 +------------+
                         |
@@ -61,14 +61,22 @@ Here's a diagram of how things are going to be connected.
 | Host |  <-----> | Anker 343 | <-----> | USB 2.0 hub |
 +------+          +-----------+         +-------------+
                         ^                      ^
-                        | PD             USB-A |
-               +-----------------+             +---> Webcam
-               | 100W PD Charger |             +---> Microphone
-               +-----------------+             +---> CF Card reader
-                                               +---> Keyboard
-                                               +---> Mouse
-                                               +---> Open port 1
-                                               +---> Open port 2
+                        | PD             USB-A |   
+               +-----------------+             |   +-------------+
+               | 100W PD Charger |             +-->| Webcam      |
+               +-----------------+             |   +-------------+
+                                               +-->| Microphone  |
+                                               |   +-------------+
+                                               +-->| Card reader |
+                                               |   +-------------+
+                                               +-->| Keyboard    |
+                                               |   +-------------+
+                                               +-->| Mouse       |
+                                               |   +-------------+
+                                               +-->| Open port 1 |
+                                               |   +-------------+
+                                               +-->| Open port 2 |
+                                                   +-------------+
 ```
 * The upstream USB-C port is connected to the host.
 * The HDMI port would be connected to the video controller, which provides the video signal to the LCD panel and the audio signal to the amps.
@@ -100,7 +108,7 @@ For the video controller, I first ordred a PCB800862 controller. But I couldn’
 * The enclosures are connected to the daughter board, which has amps for the two channels.
 * The audio output from the motherboard is fed to the daughter board through 10 wires.
 * After some reverse engineering, I have found out the pinout of the output. 
-  * The two 5v pins are probably for the current capacity. Both speakers still work if I disconnect either.
+  * The two 5-Volt pins are probably for current capacity. Both speakers still work if I disconnect either.
   * The audio outputs are single ended, with a bias voltage of ~1.62 volts.
   * Reverse engeineered pinout:
 
@@ -112,7 +120,6 @@ For the video controller, I first ordred a PCB800862 controller. But I couldn’
     |Brown  |GND       |Black  |GND       |
     |Orange |3.3v	     |Red    |GND (wtf?)|
 
-* See some discussion on this [reddit thread](https://www.reddit.com/r/AskElectronics/comments/1d7cm2i/comment/l71as52/?context=3).
 * To test the amps, I cut the wires and soldered one half to 2.5mm headers. Then I plugged them to a perf board and provide 5v, 3.3v, and audio signal.
 * I took measurements of the current on both 5v and 3.3v. The 3.3v line has a constant current of ~60 μA, apparently not used for driving the speakers.
 * The 5v line tops at 60mA when the volume is maxed out, although the nominal wattage of the speakers is 4W (800 mA).
