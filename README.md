@@ -153,7 +153,7 @@ To generate the clock signal, I used PIO on RP2040 and made a small change to [t
 
 So, now I am trying to directly convert the PDM digital signal into USB data frames. Some searching led me to the first [important discovery](https://www.hackster.io/sandeep-mistry/create-a-usb-microphone-with-the-raspberry-pi-pico-cc9bd5) that converts a mono microphone into a USB microphone using a Pi Pico. I tried it and it worked out of the box! I could hook up with one mic and call it good there. But I wanted to make use of both of the mics. I can either average the input of both or create a stereo mic. I suspect the latter is probably simpler.
 
-I found that someone has tried a [mic array](https://github.com/CaydenPierce/MSA). I gave it a try, but the result is too noisy. Not sure what's happening. Then I decided to code it myself based on Sandeep's project.
+I found that someone has tried a [mic array](https://github.com/CaydenPierce/MSA). I gave it a try, but the result was too noisy. Not sure what's happening. Then I decided to code it myself based on Sandeep's project.
 
 ### USB Interface
 Now, to do that, I need to modify the code. First, I need to present the Pico as a stereo mic. The project aforementioned uses tinyusb library to turn the Pico into a USB audio device. So I started looking into USB audio. Concepcts I learned along the way:
@@ -248,7 +248,7 @@ The front panel ports already have female USB 2.0 connectors. All I needed to do
 So I 3D printed this small holder that fits in the spot and hot glued it down in place. The female USB connectors are snugly pressed into the 3D print and super glued. Then I soldered wires to basically make them USB 2.0 extensions. The PD port is a USB C extension cable.
 
 ## Power train
-The machine comes with a 230 Watt, 19 Volt DC power adapter, in line with most old laptop power bricks. The connector is 7.4mm OD/5mm ID, used by many Dell and HP laptops. I have a couple of Dell and HP chargers in my drawer. I am was debating between using an external power adapter and integrating one inside. But given the rather low profile of the machine, it's probably hard to find an adpater that could fit in. Heat dissipation is probably going to suffer as well. The original machine had 3 fans and I removed 2.
+The machine comes with a 230 Watt, 19 Volt DC power adapter, in line with most old laptop power bricks. The connector is 7.4mm OD/5mm ID, used by many Dell and HP laptops. I have a couple of Dell and HP chargers in my drawer. I was debating between using an external power adapter and integrating one inside. But given the rather low profile of the machine, it's probably hard to find an adpater that could fit in. Heat dissipation is probably going to suffer as well. The original machine had 3 fans and I removed 2.
 
 Since I want to charge the device, I'll need a PD charger and pass through the USB to HDMI adapter.
 
