@@ -14,19 +14,18 @@ Primary goals:
 * Reuse the speakers
 
 Secondary goals:
-* Charge the connected device through PD
+* Charge the host through PD
 * Reuse the microphones
 * Reuse the webcam
 * Reuse the volume control buttons
 * Reuse the power switch button
-* Hook up the system fan
 * Add a USB 2.0 hub and connect it to IO panel ports
 * Reuse the SD card reader
 * Reuse the ambient LED light
-* Additional PD charging port (no data)
+* Provide an additional PD charging port (no data)
 
 Non goals:
-* Save money
+* Save money. It's cheaper to buy a monitor with all these features.
 
 Components to be removed or ignored:
 * Motherboard + GPU.
@@ -35,11 +34,11 @@ Components to be removed or ignored:
 * BT module. What laptop doesn't have built-in BT these days?
 * CD drive. What is a CD?! It's probably a DVD drive. Not that it doesn't belong to the museum either.
 * Hard drive.
-* 1394 connector. Come on, it's 21st century
+* 1394 connector. Come on, it's 21st century!
 * WiFi antennas.
 * IR LED. The machine was supposed to come with a remote control, but I don't have it. What am I supposed to do with it anyway?
 * Light sensor.
-* Hot start key (really not sure what it was)
+* Hot start key. Really not sure what it was.
 
 ## Disassembly
 The first step is to open up the machine and disassemble the parts, reverse engineering some components if needed. I found [these instructions](disassembly.pdf) from HP which helped with the disassembling process.
@@ -47,11 +46,36 @@ The first step is to open up the machine and disassemble the parts, reverse engi
 ## Interfaces with the host
 As a design goal, the main interface with the host (computer or phone) would be a single USB C connection. I have a few USB-C to HDMI adapters with downstream USB-A port(s) and pass-through charging. A couple of them have short (~10 cm) cables. But I want it to have a female port. I considered using a coupler. After doing some research, I realized that USB-C couplers are actually prohibited by USB spec, although such products exist on Amazon. I actually tried a couple of them and they only worked in one orientation. So I decided to use one with a detachable cable, [Anker 343](https://www.anker.com/products/a8372). It has two HDMI ports, two downstream USB-A ports, and one downstream USB-C port. I'm only using one HDMI and one USB-A, leaving plenty room for potential expansion.
 
-* The HDMI port would be connected to the video controller via an HDMI cable.
+Here's a diagram of how things are going to be connected.
+
+```
+                                              +-----------+
+                                          +-->| LCD Panel |
+              +------------------+  LVDS  |   +-----------+
+              | Video Controller |--------+ 
+              +------------------+  TSR   |   +------------+
+                        ^                  +-->| Audio amps |
+                        | HDMI                 +------------+
+                        |
++------+   USB-C  +-----------+  USB-A  +-------------+
+| Host |  <-----> | Anker 343 | <-----> | USB 2.0 hub |
++------+          +-----------+         +-------------+
+                        ^                      ^
+                        | PD             USB-A |
+               +-----------------+             +---> Webcam
+               | 100W PD Charger |             +---> Microphone
+               +-----------------+             +---> CF Card reader
+                                               +---> Keyboard
+                                               +---> Mouse
+                                               +---> Open port 1
+                                               +---> Open port 2
+```
+* The upstream USB-C port is connected to the host.
+* The HDMI port would be connected to the video controller, which provides the video signal to the LCD panel and the audio signal to the amps.
 * The USB-A port would be connected to a downstream USB 2.0 hub for the peripherals and open USB ports.
 * The PD-in port would be powered by a DC -> PD charging module.
 
-In addition, I'm also providing a power only PD port so that one can charge an accessory.
+In addition, I'm also providing a power only PD port (not shown in the diagram) so that one can charge an accessory.
 
 ## Display
 The idea is to use a video controller to drive the panel. There's quite a few video controllers out there. I did a lot of research on [this page](https://hackaday.io/project/179868-all-about-laptop-display-reuse) that provides a lot of info on reusing LDC panels, especially laptop panels.
@@ -64,7 +88,7 @@ Here's a summary of the LCD panel.
 
 The daughter board provides the DC power (19 Volts) for the inverter. The inverter connector consists a bunch of Vcc and GND wires, connected directly to the 19V DC power. In addition, there is an ENABLE and a DIM pins, connected to the motherboard. When the motherboard is powered on, I’m measuring ~4.4V on these pins.
 
-I connected both ENABLE and DIM to +5V and the panel lighted up properly. So I rewired them to the inverter output of the video controller. Note that I'm not using the 12V output of the inverter output of the video controller, but rather using its originally DC power.The inverter doesn't seem to work with 12 Volts, and there is no need to rewire anyway.
+For testing, I connected both ENABLE and DIM to +5V and the panel lighted up properly. So I rewired them to the inverter output of the video controller. Note that I'm not using the 12V inverter output of the video controller, but rather using its originally DC power.The inverter doesn't seem to work with 12 Volts. And this configuration avoids rewiring.
 
 For the video controller, I first ordred a PCB800862 controller. But I couldn’t get it to support 1920x1200. I think its firmware needed to be flashed. Then I ordered an M.MT68676.3, intended to be used for LM240WU2, which has the same resolution and is also 2 ch 8 bit, and it worked.
 
@@ -265,7 +289,13 @@ Out of curiosity, I used a USB power meter to measure some of the USB 2.0 device
 * Mechanical keyboard (powered by an Atmel mega32u4): 30mA
 
 ## Physical installation
-There's a metal sheet on the back of the LCD panel. The motherboard and all other original components were installed on the sheet. I don't want to drill and tap it, so I mounted everything with double sided foam tapes. I 3D printed standoffs for all the PCBs to keep them off the metal.
+There's a metal sheet on the back of the LCD panel. The motherboard and all other original components were installed on the sheet. I don't want to drill and tap it, so I mounted everything with double sided foam tapes and hot glue. I 3D printed standoffs for all the PCBs to keep them off the metal.
+
+![Upside](IMG_0276.jpeg)
+![Downside](IMG_0277.jpeg)
+
+The external interface is a 3D printed holder for 2 USB ports and 2 USB-C sockets.
+![IO Panel](IMG_0306.jpeg)
 
 ## Final product
 Features in a nutshell
@@ -275,8 +305,10 @@ Features in a nutshell
 * Stereo microphones
 * Webcam
 * SD card reader
-* 4 open USB 2.0 ports
+* Keyboard
+* Mouse
+* 2 open USB 2.0 ports 
 * Volume control
 * Ambient LED light
 * Power switch and indicator
-* 1 extra 100W PD charging port
+* Extra 100W PD charging port
