@@ -304,11 +304,15 @@ The upstream USB-C port and charging port are exposed via USB-C extension cables
 ![Downside](IMG_0277.jpeg)
 ![Back](IMG_0321.jpeg)
 
-## Final product
+## End result
 
-![Final product](IMG_0322.jpeg)
+I'm pretty happy with the end result:
 
-Features in a nutshell
+![End result](IMG_0336.jpeg)
+
+The keyboard and the touchpad in the picture were salvaged from laptops.
+
+In summary, here's the list of fully functional features.
 * USB-C interface with 85W PD charging
 * 1920x1200 60 Hz LCD display
 * Stereo speakers
